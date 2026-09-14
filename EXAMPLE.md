@@ -3,7 +3,7 @@ title: Invariant measures and reversible kernels
 source_module: Mathlib.Probability.Kernel.Invariance
 source_path: Mathlib/Probability/Kernel/Invariance.lean
 mathlib_commit: https://github.com/leanprover-community/mathlib4/commits/7d32461ad224e921eb05ead7ac02156702f4aa59/Mathlib/Probability/Kernel/Invariance.lean
-last_update: 2026-09-13
+last_update: 2026-09-14
 topics:
   - Markov kernels
   - invariant measures
@@ -205,7 +205,7 @@ Therefore,
 &=\mu.
 \end{aligned}
 ```
-Theses are all the math but the proof body of this theorem consider two cases -  empty α and Nonempty α. However this is actually reduandant for the current mathlib API, I have made a PR to mathlib about this.
+Theses are all the math but the proof body of this theorem consider two cases -  empty α and Nonempty α. However this is actually reduandant for the current mathlib API, I have made a [PR](https://github.com/leanprover-community/mathlib4/pull/43805) to mathlib about this.
 
 ## 4. Scope and limitations
 To build further, Kallenberg defines invariance for a transition semigroup $(K_t)_{t \geq 0}$ by
