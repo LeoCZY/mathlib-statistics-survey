@@ -104,7 +104,7 @@ under $\kappa$.
 ## 2. Core definitions
 Definition 1. For every measurable set $B \subseteq \alpha$,
 ```math
-(\mu.\operatorname{bind}\kappa)(B)
+(\mu.\mathrm{bind}\,\kappa)(B)
 =
 \int_{\alpha}\kappa(x,B)\,\mu(dx).
 ```
@@ -164,7 +164,7 @@ nonrec theorem Invariant.comp_const (hκ : Invariant κ μ) : κ ∘ₖ const α
 ```
 - explaination: `const α μ` is a **constant kernel**: regardless of the input $x$, it always returns the measure $\mu$, which is
 ```math
-(\operatorname{const}_{\alpha}\mu)(x)=\mu.
+(\mathrm{const}_{\alpha}\,\mu)(x)=\mu.
 ```
 
 - what does `nonrec` mean here?
