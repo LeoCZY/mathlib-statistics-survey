@@ -48,45 +48,45 @@ h_rev : κ.IsReversible π
  Write $\pi\kappa$ for the measure defined, for every measurable
 $B\subseteq\alpha$, by
 
-$$
+```math
 (\pi\kappa)(B)=\int_\alpha \kappa(x,B)\,\pi(dx).
-$$
+```
 
 To prove that $\pi\kappa=\pi$, fix a measurable set $s\in\mathcal A$ and compare
 the two measures on $s$. By the definition of $\pi\kappa$,
 
-$$
+```math
 (\pi\kappa)(s)=\int_\alpha \kappa(x,s)\,\pi(dx).
-$$
+```
 
 In the assumed integral equality, take $A=s$ and $B=\alpha$, and write the result
 in the direction needed here:
 
-$$
+```math
 \int_\alpha \kappa(x,s)\,\pi(dx)
 =
 \int_s \kappa(x,\alpha)\,\pi(dx).
-$$
+```
 
 For every $x\in\alpha$, $\kappa(x,\cdot)$ is a probability measure. Therefore
 
-$$
+```math
 \kappa(x,\alpha)=1.
-$$
+```
 
 It follows that
 
-$$
+```math
 \int_s \kappa(x,\alpha)\,\pi(dx)
 =
 \int_s 1\,\pi(dx)
 =
 \pi(s).
-$$
+```
 
 Hence
 
-$$
+```math
 (\pi\kappa)(s)
 =
 \int_\alpha \kappa(x,s)\,\pi(dx)
@@ -94,7 +94,7 @@ $$
 \int_s \kappa(x,\alpha)\,\pi(dx)
 =
 \pi(s).
-$$
+```
 
 This holds for every measurable $s$. Thus $\pi\kappa=\pi$, so $\pi$ is invariant
 under $\kappa$.
@@ -103,11 +103,11 @@ under $\kappa$.
 
 ## 2. Core definitions
 Definition 1. For every measurable set $B \subseteq \alpha$,
-$$
+```math
 (\mu.\operatorname{bind}\kappa)(B)
 =
 \int_{\alpha}\kappa(x,B)\,\mu(dx).
-$$
+```
 ```lean
 def Invariant (κ : Kernel α α) (μ : Measure α) : Prop :=
   μ.bind κ = μ
@@ -117,11 +117,11 @@ Remark 1. The original definition of `bind` can be found [here](https://leanprov
 
 
 **Definition 2.** For any measurable sets $A, B \subseteq \alpha$,
-$$
+```math
 \int_A \kappa(x, B)\,\pi(dx)
 =
 \int_B \kappa(x, A)\,\pi(dx).
-$$
+```
 
 ```lean
 def IsReversible (κ : Kernel α α) (π : Measure α) : Prop :=
@@ -163,7 +163,9 @@ nonrec theorem Invariant.comp_const (hκ : Invariant κ μ) : κ ∘ₖ const α
   rw [comp_const κ μ, hκ.def]
 ```
 - explaination: `const α μ` is a **constant kernel**: regardless of the input $x$, it always returns the measure $\mu$, which is
- $$(\operatorname{const}_{\alpha}\mu)(x)=\mu.$$
+```math
+(\operatorname{const}_{\alpha}\mu)(x)=\mu.
+```
 
 - what does `nonrec` mean here?
 In the imported file in the beginning, `MeasureComp.lean` contains $\kappa \circ_K C_\mu = C_{\mu\kappa}.$
@@ -195,22 +197,22 @@ Assume that $\mu\eta=\mu,\mu\kappa=\mu.$, Mathlib’s kernel composition`κ ∘�
 
 Therefore,
 
-$$
+```math
 \begin{aligned}
 \mu(\kappa\circ\eta)
 &=(\mu\eta)\kappa\\
 &=\mu\kappa\\
 &=\mu.
 \end{aligned}
-$$
+```
 Theses are all the math but the proof body of this theorem consider two cases -  empty α and Nonempty α. However this is actually reduandant for the current mathlib API, I have made a PR to mathlib about this.
 
 ## 4. Scope and limitations
 To build further, Kallenberg defines invariance for a transition semigroup $(K_t)_{t \geq 0}$ by
-  $$
+```math
   \mu K_t = \mu
   \qquad \text{for every } t.
-  $$
+```
 
 Book `Foundations of Modern Probability` page 242 Lemma 11.11
 ![alt text](image.png)
