@@ -17,7 +17,7 @@ Mathlib source：[Mathlib.Probability.Kernel.Invariance](https://github.com/lean
 ## 1. Mathemetical results and LEAN translation
 
 
-- what is the core theorem/definition this file trying to build? (summarize this at the end)
+- what is the core theorem/definition this file trying to build?
 
 **Theorem 1.** Given a measurable space $(\alpha, \mathcal{A})$, a Markov kernel $\kappa$ from $\alpha$ to itself, and a measure $\pi$ on $\alpha$, suppose that $\kappa$ is reversible with respect to $\pi$. Then $\pi$ is an invariant measure for $\kappa$.
 
