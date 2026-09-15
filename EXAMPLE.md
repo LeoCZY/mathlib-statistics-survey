@@ -175,7 +175,7 @@ Kernel.comp_const :
   κ ∘ₖ const α μ = const α (κ ∘ₘ μ)
 ```
 Here we are trying to say, assue invariant, we have $\kappa \circ_K C_\mu = C_\mu.$
-```
+```lean
 Invariant.comp_const :
   Invariant κ μ →
   κ ∘ₖ const α μ = const α μ
@@ -183,7 +183,7 @@ Invariant.comp_const :
 To prove this we need to use the theorem which is also called `Kernel.comp_const`,`nonrec` ensures that the proof refers to the previously defined theorem.
 
 Surely we can just change a name to prevent this `nonrec`! But this design gave us clean API name where we can see the nesetd relationship between the two.
-```
+```lean
 ProbabilityTheory.Kernel.comp_const
 ProbabilityTheory.Kernel.Invariant.comp_const
 ```
