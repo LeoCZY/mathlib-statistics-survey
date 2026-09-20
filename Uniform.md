@@ -17,7 +17,7 @@ Mathlib source: [Uniform distributions and probability mass functions](https://g
 
 - What is the main theorem or definition?
 
-**Theorem 1.** Given measurable spaces $(\Omega,\mathcal{F})$ and $(E,\mathcal{E})$, measures $P$ on $\Omega$ and $\mu$ on $E$, and a measurable set $s \subseteq E$, suppose that $X:\Omega\to E$ has uniform distribution on $s$ with respect to $\mu$ under $P$. Then $\operatorname{pdf}_{X,P,\mu}(x)=(\mu(s))^{-1}\mathbf{1}_s(x)$ for $\mu$-almost every $x\in E$, where $\mathbf{1}_s$ is the indicator function of $s$ and the arithmetic is interpreted in $[0,\infty]$.
+**Theorem 1.** Given measurable spaces $(\Omega,\mathcal{F})$ and $(E,\mathcal{E})$, measures $P$ on $\Omega$ and $\mu$ on $E$, and a measurable set $s \subseteq E$, suppose that $X:\Omega\to E$ has uniform distribution on $s$ with respect to $\mu$ under $P$. Then $\mathrm{pdf}_{X,P,\mu}(x)=(\mu(s))^{-1}\mathbf{1}_s(x)$ for $\mu$-almost every $x\in E$, where $\mathbf{1}_s$ is the indicator function of $s$ and the arithmetic is interpreted in $[0,\infty]$.
 
 - What is its exact Lean statement?
 
@@ -47,7 +47,7 @@ hu  : MeasureTheory.pdf.IsUniform X s P μ
 - what was the proof
 
 **Proof.**
-Write $\nu=P\circ X^{-1}$ and $f=\operatorname{pdf}_{X,P,\mu}$.
+Write $\nu=P\circ X^{-1}$ and $f=\mathrm{pdf}_{X,P,\mu}$.
 By uniformity,
 
 ```math
@@ -181,12 +181,12 @@ Here, `[Fintype α]` specifies that $\alpha$ is finite, and `[Nonempty α]` ensu
 
 **Definition 4.** Given a nonempty multiset $s$ of elements of $\alpha$, the probability mass function `ofMultiset` assigns each value a probability equal to its number of occurrences divided by the total size of $s$:
 ```math
-p(a)=\frac{\operatorname{count}_s(a)}{|s|}
+p(a)=\frac{\mathrm{count}_s(a)}{|s|}
 \qquad\text{for every }a\in\alpha.
 ```
 Its Lean declaration is:
 ```lean
-def ofMultiset (s : Multiset α) (hs : s ≠ 0) : PMF α :=
+def ofMultiset (s : Multiset α) (hs : s ≠ 0) : PMF α 
 ```
 Here, $|s|$ counts all occurrences, including duplicates. The assumption `hs : s ≠ 0` ensures that the multiset is nonempty. Values appearing more often receive greater probability.
 
@@ -218,7 +218,7 @@ Here, $|s|$ counts all occurrences, including duplicates. The assumption `hs : s
 
 **Mathematical statement.** If $s$ is measurable and $X$ is uniformly distributed on $s$, then
 ```math
-\bigl(\operatorname{pdf}_{X,P,\mu}(x)\bigr).\mathrm{toReal}
+\bigl(\mathrm{pdf}_{X,P,\mu}(x)\bigr).\mathrm{toReal}
 =
 \bigl((\mu(s))^{-1}\mathbf{1}_s(x)\bigr).\mathrm{toReal}
 \qquad \mu\text{-a.e.}
@@ -243,7 +243,7 @@ g_{s,\mu}(x)=(\mu(s))^{-1}\mathbf{1}_s(x).
 
 **Mathematical statement.** If $s$ is measurable and $X$ is uniformly distributed on $s$, then
 ```math
-g_{s,\mu}(x)=\operatorname{pdf}_{X,P,\mu}(x)
+g_{s,\mu}(x)=\mathrm{pdf}_{X,P,\mu}(x)
 \qquad \mu\text{-a.e.}
 ```
 
@@ -348,7 +348,7 @@ The Lean proof uses the corresponding outer-measure formula. Measurability of $t
 ```math
 \Pr(t)
 =
-\frac{\sum_{a\in\alpha}\operatorname{count}_{s_t}(a)}{|s|}
+\frac{\sum_{a\in\alpha}\mathrm{count}_{s_t}(a)}{|s|}
 =
 \frac{|s_t|}{|s|}.
 ```
@@ -364,8 +364,8 @@ The first expression corresponds to the sum in the Lean statement; the second is
 \begin{aligned}
 \Pr(t)
 &=\sum_{a\in\alpha}\mathbf{1}_t(a)
-  \frac{\operatorname{count}_s(a)}{|s|}\\
-&=\frac{\sum_{a\in\alpha}\operatorname{count}_{s_t}(a)}{|s|}.
+  \frac{\mathrm{count}_s(a)}{|s|}\\
+&=\frac{\sum_{a\in\alpha}\mathrm{count}_{s_t}(a)}{|s|}.
 \end{aligned}
 ```
 The outer-measure proof splits according to whether $a\in t$. The measurable-event formula then follows by identifying the induced measure with the outer measure on $t$.
