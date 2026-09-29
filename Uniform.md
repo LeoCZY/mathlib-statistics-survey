@@ -144,7 +144,16 @@ def IsUniform (X : Ω → E) (s : Set E) (P : Measure Ω)
     (μ : Measure E := by volume_tac) :=
   HasLaw X μ[|s] P
 ```
-**Remark 1.** The notation `μ[|s]` denotes the normalized restricted measure $(\mu(s))^{-1}\mu|_s$. The predicate `HasLaw` records both the $P$-almost everywhere measurability of $X$ and the equality
+**Remark 1.** The notation `μ[|s]` denotes the normalized restricted measure $(\mu(s))^{-1}\mu|_s$. In [`Mathlib.Probability.HasLaw`](https://github.com/leanprover-community/mathlib4/blob/0fa18d49e3c34d2b7766fe0cb6016e3bd68cd15a/Mathlib/Probability/HasLaw.lean), `HasLaw X μ P` is defined by two fields (with `X` and `μ` in scope):
+
+```lean
+@[fun_prop]
+structure HasLaw (P : Measure Ω := by volume_tac) : Prop where
+  protected aemeasurable : AEMeasurable X P := by fun_prop
+  protected map_eq : P.map X = μ
+```
+
+Here the source uses `μ` for the proposed law; in `IsUniform`, that argument is `μ[|s]`. Thus `HasLaw X μ[|s] P` requires both that $X$ is $P$-almost everywhere measurable and that its push-forward measure satisfies
 ```math
 P\circ X^{-1}=(\mu(s))^{-1}\mu|_s.
 ```
@@ -160,13 +169,24 @@ p(a)=
 0, & a\notin s.
 \end{cases}
 ```
+In the `PMF` namespace, the full definition is:
 ```lean
-def uniformOfFinset (s : Finset α) (hs : s.Nonempty) : PMF α 
+def uniformOfFinset (s : Finset α) (hs : s.Nonempty) : PMF α := by
+  classical
+  refine ofFinset (fun a => if a ∈ s then s.card⁻¹ else 0) s ?_ ?_
+  · simp only [Finset.sum_ite_mem, Finset.inter_self, Finset.sum_const, nsmul_eq_mul]
+    have : (s.card : ℝ≥0∞) ≠ 0 := by
+      simpa only [Ne, Nat.cast_eq_zero, Finset.card_eq_zero] using
+        Finset.nonempty_iff_ne_empty.1 hs
+    exact ENNReal.mul_inv_cancel this <| ENNReal.natCast_ne_top s.card
+  · exact fun x hx => by simp only [hx, ite_false]
 ```
-The assumption `hs : s.Nonempty` ensures that $|s|>0$, so the probabilities sum to one:
+
+The `by` block constructs a value of type `PMF α` using tactics; this remains a definition. The two `?_` in the call to `ofFinset` are proof obligations. The first proves that the point probabilities sum to `1`. Here `hs : s.Nonempty` gives `(s.card : ℝ≥0∞) ≠ 0`, while a finite cardinality is not `∞`, so `ENNReal.mul_inv_cancel` yields
 ```math
 \sum_{a\in s}p(a)=|s|\cdot\frac{1}{|s|}=1.
 ```
+The second proves that the point probability is `0` outside `s`: given `hx : x ∉ s`, the `if` expression reduces to `0`. The `classical` tactic supplies the decidability needed to test membership `a ∈ s` for an arbitrary type `α`. Once these obligations are proved, `ofFinset` produces a valid probability mass function. This models drawing one element uniformly from a nonempty finite set: a measurable event $t$ has probability $|s\cap t|/|s|$ (see Section 3). `uniformOfFintype` also reuses this definition with `s = Finset.univ`.
 
 **Definition 3.** Given a finite nonempty type $\alpha$, the uniform probability mass function on $\alpha$ assigns the same probability to every element:
 ```math
@@ -179,16 +199,45 @@ def uniformOfFintype (α : Type*) [Fintype α] [Nonempty α] : PMF α :=
 ```
 Here, `[Fintype α]` specifies that $\alpha$ is finite, and `[Nonempty α]` ensures that $|\alpha|>0$. This definition applies `uniformOfFinset` to `Finset.univ`, the finite set of all elements of $\alpha$.
 
-**Definition 4.** Given a nonempty multiset $s$ of elements of $\alpha$, the probability mass function `ofMultiset` assigns each value a probability equal to its number of occurrences divided by the total size of $s$:
-```math
-p(a)=\frac{\mathrm{count}_s(a)}{|s|}
-\qquad\text{for every }a\in\alpha.
-```
-Its Lean declaration is:
+**Definition 4.** Given a nonempty multiset $s$ of elements of $\alpha$, `ofMultiset` constructs a probability mass function by weighting each value according to its number of occurrences.
+In the `PMF` namespace, the full definition is:
 ```lean
-def ofMultiset (s : Multiset α) (hs : s ≠ 0) : PMF α 
+open scoped Classical in
+def ofMultiset (s : Multiset α) (hs : s ≠ 0) : PMF α :=
+  ⟨fun a => s.count a / (Multiset.card s),
+    ENNReal.summable.hasSum_iff.2
+      (calc
+        (∑' b : α, (s.count b : ℝ≥0∞) / (Multiset.card s))
+          = (Multiset.card s : ℝ≥0∞)⁻¹ * ∑' b, (s.count b : ℝ≥0∞) := by
+            simp_rw [ENNReal.div_eq_inv_mul, ENNReal.tsum_mul_left]
+        _ = (Multiset.card s : ℝ≥0∞)⁻¹ * ∑ b ∈ s.toFinset, (s.count b : ℝ≥0∞) :=
+          (congr_arg (fun x => (Multiset.card s : ℝ≥0∞)⁻¹ * x)
+            (tsum_eq_sum fun a ha =>
+              Nat.cast_eq_zero.2 <| by rwa [Multiset.count_eq_zero, ← Multiset.mem_toFinset]))
+        _ = 1 := by
+          rw [← Nat.cast_sum, Multiset.toFinset_sum_count_eq s,
+            ENNReal.inv_mul_cancel (Nat.cast_ne_zero.2 (hs ∘ Multiset.card_eq_zero.1))
+              (ENNReal.natCast_ne_top _)]
+        )⟩
 ```
-Here, $|s|$ counts all occurrences, including duplicates. The assumption `hs : s ≠ 0` ensures that the multiset is nonempty. Values appearing more often receive greater probability.
+Here `PMF α` consists of a point-probability function together with a proof that its values sum to `1`. The pair `⟨..., ...⟩` supplies these two components: `fun a => s.count a / (Multiset.card s)` gives the probability of `a`, and `ENNReal.summable.hasSum_iff.2` turns the following calculation into the required summation proof. The `by` blocks inside `calc` justify individual equalities; this declaration remains a definition.
+
+The calculation first factors out `(Multiset.card s)⁻¹`. It then replaces the infinite sum with a finite sum over `s.toFinset`, since values outside the multiset have count `0`. Although `s.toFinset` lists each distinct value only once, `s.count b` retains its multiplicity. Finally, the sum of all counts is `Multiset.card s`; `hs : s ≠ 0` makes this denominator nonzero, so the normalized sum is `1`. This definition models drawing one occurrence uniformly from a nonempty multiset and then observing its value. Repeated values therefore receive more probability: for $s=[a,a,b]$ with $a\neq b$, the probability of $a$ is $2/3$. It also lets us compute a measurable event's probability by counting all occurrences whose values lie in the event (see Section 3).
+
+The public theorem `ofMultiset_apply` exposes the point-probability formula for direct use. In the `PMF` namespace, the source states:
+```lean
+variable {s : Multiset α} (hs : s ≠ 0)
+
+open scoped Classical in
+@[simp]
+theorem ofMultiset_apply (a : α) : ofMultiset s hs a = s.count a / (Multiset.card s) :=
+  rfl
+```
+Mathematically, for every $a\in\alpha$,
+```math
+p_s(a)=\frac{\mathrm{count}_s(a)}{|s|}.
+```
+Here, $|s|$ counts all occurrences, including duplicates. The assumption `hs : s ≠ 0` ensures that the multiset is nonempty. Values appearing more often receive greater probability. This pointwise formula requires no measurable-event assumption. The proof is `rfl` because the formula follows directly from the definition; `@[simp]` lets Lean use it when simplifying expressions involving `ofMultiset`.
 
 ## 3. Other public declarations
 
@@ -206,6 +255,7 @@ Here, $|s|$ counts all occurrences, including duplicates. The assumption `hs : s
 | `uniformPDF_ite` | Expresses `uniformPDF` as a piecewise function inside and outside the set. |
 | `PMF.toMeasure_uniformOfFinset_apply` | Computes a measurable event's probability as the proportion of elements of the finite set that belong to the event. |
 | `PMF.toMeasure_uniformOfFintype_apply` | Computes a measurable event's probability as its cardinality divided by the cardinality of the finite type. |
+| `PMF.ofMultiset_apply` | Computes the probability of a value as its occurrence count divided by the multiset's total size. |
 | `PMF.toMeasure_ofMultiset_apply` | Computes a measurable event's probability by counting occurrences in the multiset, including duplicates. |
 
 - What does each one say mathematically?
